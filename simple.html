@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="eggbox.js">
+</script>
+<H1>Test for audio echo canceller.</H1>
+<div id="startbutton" onclick="eggbox.startCall();">Start</div>
+<audio id="dingdong" src="14.mp3"></audio>
+<script>
+    var eggbox;
+    var ding = document.getElementById("dingdong");
+    ding.addEventListener('loadeddata', function() {
+        console.log("loaded data "+ding.readyState);
+        if(ding.readyState >= 2) {
+            eggbox = new Eggbox(ding);
+        }
+    });
+</script>
+
+</body>
+</html>
