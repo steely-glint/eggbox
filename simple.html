@@ -8,17 +8,28 @@
 <script src="eggbox.js">
 </script>
 <H1>Test for audio echo canceller.</H1>
-<div id="startbutton" onclick="eggbox.startCall();">Start</div>
-<audio id="dingdong" src="14.mp3"></audio>
+<div id="startbutton" onclick="eggbox.startCall();">Connect</div>
+<div id="playbutton" onclick="play();">Play</div>
+
+<audio id="ding" src="distributedFuture-70.mp3"></audio>
+<audio id="dong"></audio>
 <script>
     var eggbox;
-    var ding = document.getElementById("dingdong");
+    var ding = document.getElementById("ding");
+    var dong = document.getElementById("dong");
+
     ding.addEventListener('loadeddata', function() {
         console.log("loaded data "+ding.readyState);
         if(ding.readyState >= 2) {
-            eggbox = new Eggbox(ding);
+            eggbox = new Eggbox(ding,dong);
         }
     });
+    function play(){
+        ding.muted = true;
+        ding.play();
+        dong.muted = false;
+        dong.play();
+    }
 </script>
 
 </body>

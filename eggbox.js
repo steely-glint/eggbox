@@ -2,9 +2,10 @@
  * Created by tim on 13/04/2022.
  */
 class Eggbox {
-    constructor(mediaElement) {
+    constructor(mediaElement, outAudio) {
         this.mediaElement =mediaElement;
-        this.peerConnectionOfferAnswerCriteria =  {offerToReceiveAudio: true, offerToReceiveVideo: false };
+        this.them = outAudio;
+
         this.configuration = {
             "iceServers": [
                 {"urls": "stun:stun4.l.google.com:19302"}
@@ -58,6 +59,8 @@ class Eggbox {
             };
             this.pc2.ontrack = (event) => {
                 console.log("got remote track ", event.track.kind);
+                var stream = event.streams[0];
+                this.them.srcObject = stream;
             };
             this.pc1.oniceconnectionstatechange = (e) => {
                 console.log("ice state is changed" + this.pc1.iceConnectionState);
@@ -87,6 +90,7 @@ class Eggbox {
                 var pstream = this.source.stream;
                 pstream.getTracks().forEach(track => {
                     if (track.kind === "audio") {
+                        console.log("add outbound audio track");
                         this.pc1.addTrack(track);
                     }
                     //if (track.kind === "audio") {
