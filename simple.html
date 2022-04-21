@@ -8,27 +8,40 @@
 <script src="eggbox.js">
 </script>
 <H1>Test for audio echo canceller.</H1>
-<div id="startbutton" onclick="eggbox.startCall();">Connect</div>
+<div id="startbutton" onclick="connect();">Connect</div>
 <div id="playbutton" onclick="play();">Play</div>
 
-<audio id="ding" src="distributedFuture-70.mp3"></audio>
-<audio id="dong"></audio>
-<script>
-    var eggbox;
-    var ding = document.getElementById("ding");
-    var dong = document.getElementById("dong");
 
-    ding.addEventListener('loadeddata', function() {
-        console.log("loaded data "+ding.readyState);
-        if(ding.readyState >= 2) {
-            eggbox = new Eggbox(ding,dong);
-        }
-    });
+<audio id="ding"  controls  controlslist="nodownload"></audio>
+<audio id="dong" controls  controlslist="nodownload"></audio>
+<script>
+    document.onload
+    var local = false;
+    var eggbox;
+    var ding;
+    var dong;
+    window.onload = (event) => {
+        console.log('page is fully loaded');
+        ding = document.getElementById("ding");
+        dong = document.getElementById("dong");
+        eggbox = new Eggbox(ding,dong);
+
+        ding.addEventListener('loadeddata', function() {
+            console.log("ding loaded data "+ding.readyState);
+        });
+        dong.addEventListener('loadeddata', function() {
+            console.log("dong loaded data "+dong.readyState);
+        });
+    };
     function play(){
         ding.muted = true;
         ding.play();
         dong.muted = false;
         dong.play();
+    }
+    function connect(){
+        eggbox.startCall();
+        ding.setAttribute("src","distributedFuture-70.mp3");
     }
 </script>
 

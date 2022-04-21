@@ -6,6 +6,17 @@ class Eggbox {
         this.mediaElement =mediaElement;
         this.them = outAudio;
 
+        this.tweakOpus = (send) => {
+            const paras = send.getParameters();
+            console.log("initial audio encoder params");
+            console.log(paras);
+            if ((paras) && (paras.encodings)) {
+                paras.encodings[0].maxBitrate = 64000;
+                send.setParameters(paras);
+                console.log(paras);
+            }
+        }
+
         this.configuration = {
             "iceServers": [
                 {"urls": "stun:stun4.l.google.com:19302"}
@@ -15,9 +26,15 @@ class Eggbox {
         this.startCall = () => {
             this.ac = new AudioContext();
             if (!this.mediaElement) {
-                console.log("no audio on that element");
+                const oscillator = this.ac.createOscillator();
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(440, this.ac.currentTime); // value in hertz
+                this.source = this.ac.createMediaStreamDestination();
+                oscillator.connect(this.source);
+                oscillator.start();
             } else {
-                var meTrack = this.ac.createMediaElementSource(this.mediaElement);
+                this.mediaElement.crossOrigin = "anonymous";
+                let meTrack = this.ac.createMediaElementSource(this.mediaElement);
                 this.source = this.ac.createMediaStreamDestination();
                 meTrack.connect(this.source);
             }
@@ -60,7 +77,11 @@ class Eggbox {
             this.pc2.ontrack = (event) => {
                 console.log("got remote track ", event.track.kind);
                 var stream = event.streams[0];
-                this.them.srcObject = stream;
+                if (stream) {
+                    this.them.srcObject = stream;
+                } else {
+                    console.log("no stream ??");
+                }
             };
             this.pc1.oniceconnectionstatechange = (e) => {
                 console.log("ice state is changed" + this.pc1.iceConnectionState);
@@ -68,7 +89,7 @@ class Eggbox {
                     console.log(this.pc1.getTransceivers());
                     var send = this.pc1.getTransceivers().find( (tr) => tr.sender && tr.sender.track.kind==="audio").sender;
                     console.log(send);
-                    //tweakL16(send);
+                    this.tweakOpus(send);
                 }
                 /*
                  "new"	The ICE agent is gathering addresses or is waiting to be given remote candidates through calls to RTCPeerConnection.addIceCandidate() (or both).
@@ -88,6 +109,12 @@ class Eggbox {
             };
             if (this.source){
                 var pstream = this.source.stream;
+                if (local) {
+                    eggbox.them.srcObject = pstream;
+                } else {
+                    this.pc1.addStream(pstream);
+                }
+                /*
                 pstream.getTracks().forEach(track => {
                     if (track.kind === "audio") {
                         console.log("add outbound audio track");
@@ -97,7 +124,7 @@ class Eggbox {
                     //    flipCodecOrder(pc, track);
                     //}
                     console.log("added local track "+ track.id+ " "+ track.kind);
-                });
+                }); */
             }
         }
     }
